@@ -1,6 +1,7 @@
 import json
 import signal
 import sys
+import urllib.parse
 
 from tornado import websocket
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -35,7 +36,14 @@ class CallbackHandler():
 
 
 class WebSocketIndexHandler(websocket.WebSocketHandler):
-    def check_origin(self, origin): return True
+    def check_origin(self, origin):
+        if conf.DEBUG:
+            return True
+
+        parsed_origin = urllib.parse.urlparse(origin)
+        host = parsed_origin.netloc
+        return host in conf.HOSTS
+
     def open(self):
         open_ws.add(self)
         self.callback = PeriodicCallback(self.send_data, 1000)
