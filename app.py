@@ -1,6 +1,6 @@
 import json
+import signal
 import sys
-
 
 from tornado import websocket
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -11,7 +11,6 @@ import conf
 from statuscrawler import get_data
 
 io_loop = IOLoop.instance()
-
 
 open_ws = set()
 
@@ -32,7 +31,7 @@ class CallbackHandler():
         elif not self.callback_fn.is_running():
             self.callback_fn.start()
     def stop_callback(self):
-        callback_fn.stop()
+        self.callback_fn.stop()
 
 
 class WebSocketIndexHandler(websocket.WebSocketHandler):
@@ -53,16 +52,23 @@ routes = [
      (r'/ws/monitor', WebSocketIndexHandler),
 ]
 
+callback_handler = CallbackHandler()
+callback_handler.start_callback()
+
+def shutdown():
+    io_loop.stop()
+    callback_handler.stop_callback()
+
+
+def sigint_handler(*args):
+    io_loop.add_callback(shutdown)
+
+signal.signal(signal.SIGINT, sigint_handler)
 
 def main():
     app = Application(routes, **conf.app_settings)
 
-    callback_handler = CallbackHandler()
-    callback_handler.start_callback()
-
-
     http_server = HTTPServer(app)
-
     http_server.listen(conf.PORT)
 
     io_loop.start()
