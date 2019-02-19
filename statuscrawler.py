@@ -61,13 +61,13 @@ async def get_data():
 
     memory = {}
 
-    memory_data = (await process.Subprocess("egrep --color '^(MemTotal|MemFree|Buffers|Cached|SwapTotal|SwapFree)' /proc/meminfo | egrep '[0-9.]{4,}' -o", **subprocess_opts).stdout.read_until_close()).decode('utf-8').strip().split('\n')
-    memory["MemTotal"] = int(memory_data[0])
-    memory["MemFree"] = int(memory_data[1])
-    memory["Buffers"] = int(memory_data[2])
-    memory["Cached"] = int(memory_data[3])
-    memory["SwapTotal"] = int(memory_data[4])
-    memory["SwapFree"] = int(memory_data[5])
+    memory_data = (await process.Subprocess("egrep --color '^(MemTotal|MemFree|Buffers|Cached|SwapTotal|SwapFree)' /proc/meminfo | egrep '[a-zA-Z]+:(\ )+[0-9.]+' -o",
+                    **subprocess_opts).stdout.read_until_close()).decode('utf-8').strip().split('\n')
+
+    memory_data = [e.split(":") for e in memory_data.split("\n")]
+
+    for entry in memory_data:
+        memory[entry[0]] = int(entry[1].strip())
 
     response_dict["memory"] = memory
 
