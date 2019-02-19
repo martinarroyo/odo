@@ -8,7 +8,7 @@ from tornado import process
 
 import conf
 
-subprocess_opts = {'shell': True, 'stdout': process.Subprocess.STREAM}
+SUBPROCESS_OPTS = {'shell': True, 'stdout': process.Subprocess.STREAM}
 
 def extract_cpu_info(cpu_info):
     result = []
@@ -31,7 +31,7 @@ def extract_cpu_info(cpu_info):
     return result
 
 async def get_network_info():
-    fd_network = process.Subprocess("netstat -i | tail -n +2", **subprocess_opts).stdout
+    fd_network = process.Subprocess("netstat -i | tail -n +2", **SUBPROCESS_OPTS).stdout
     network_result = await fd_network.read_until_close()
     network_result = network_result.decode('utf-8').strip()
     network_result = network_result.split("\n")
@@ -48,21 +48,21 @@ async def get_data():
     """
     response_dict = {}
     response_dict["time"] = mktime(localtime())*1000.0
-    fd_uname = process.Subprocess("uname -r", **subprocess_opts).stdout
+    fd_uname = process.Subprocess("uname -r", **SUBPROCESS_OPTS).stdout
 
     uname_result = await fd_uname.read_until_close()
     uname_result = uname_result.decode('utf-8').strip()
     response_dict["uname"] = uname_result
 
-    fd_uptime = process.Subprocess("uptime | tail -n 1 | awk '{print $3 $4 $5}'", **subprocess_opts).stdout
+    fd_uptime = process.Subprocess("uptime | tail -n 1 | awk '{print $3 $4 $5}'", **SUBPROCESS_OPTS).stdout
 
     uptime_result = await fd_uptime.read_until_close()
     response_dict["uptime"] = uptime_result.decode('utf-8').strip()
 
     memory = {}
 
-    memory_data = (await process.Subprocess("egrep --color '^(MemTotal|MemFree|Buffers|Cached|SwapTotal|SwapFree)' /proc/meminfo | egrep '[a-zA-Z]+:(\ )+[0-9.]+' -o",
-                    **subprocess_opts).stdout.read_until_close()).decode('utf-8').strip()
+    memory_data = await process.Subprocess("egrep --color '^(MemTotal|MemFree|Buffers|Cached|SwapTotal|SwapFree)' /proc/meminfo | egrep '[a-zA-Z]+:( )+[0-9.]+' -o", **SUBPROCESS_OPTS)
+    memory_data = memory_data.stdout.read_until_close().decode('utf-8').strip()
 
     memory_data = [e.split(":") for e in memory_data.split("\n")]
 
@@ -71,16 +71,16 @@ async def get_data():
 
     response_dict["memory"] = memory
 
-    load_data = (await process.Subprocess("uptime | grep -ohe 'load average[s:][: ].*' | awk '{ print $3\" \"$4\" \"$5 }'", **subprocess_opts).stdout.read_until_close()).decode('utf-8').strip().split(', ') # https://raymii.org/s/snippets/Get_uptime_load_and_users_with_grep_sed_and_awk.html
+    load_data = (await process.Subprocess("uptime | grep -ohe 'load average[s:][: ].*' | awk '{ print $3\" \"$4\" \"$5 }'", **SUBPROCESS_OPTS).stdout.read_until_close()).decode('utf-8').strip().split(', ') # https://raymii.org/s/snippets/Get_uptime_load_and_users_with_grep_sed_and_awk.html
     load_average = {'1min': float(load_data[0].replace(',', '.')), '5min': float(load_data[1].replace(',', '.')), '15min': float(load_data[2].replace(',', '.'))}
     response_dict["load_average"] = load_average
 
     # TODO: Replace with /proc/net/dev: https://serverfault.com/a/533523/284322
-    #response_dict["rx"] = int((await process.Subprocess("/sbin/ifconfig eth0 | grep \"RX bytes\" | awk '{ print $2 }' | cut -d\":\" -f2", **subprocess_opts).stdout.read_until_close()).decode('utf-8').strip())
+    #response_dict["rx"] = int((await process.Subprocess("/sbin/ifconfig eth0 | grep \"RX bytes\" | awk '{ print $2 }' | cut -d\":\" -f2", **SUBPROCESS_OPTS).stdout.read_until_close()).decode('utf-8').strip())
 
-    #response_dict["tx"] = int((await process.Subprocess("/sbin/ifconfig eth0 | grep \"TX bytes\" | awk '{ print $2 }' | cut -d\":\" -f2", **subprocess_opts).stdout.read_until_close()).decode('utf-8').strip())
+    #response_dict["tx"] = int((await process.Subprocess("/sbin/ifconfig eth0 | grep \"TX bytes\" | awk '{ print $2 }' | cut -d\":\" -f2", **SUBPROCESS_OPTS).stdout.read_until_close()).decode('utf-8').strip())
 
-    cpu_info = (await process.Subprocess(os.path.join(conf.BASE_DIR, "./mpstat/mpstat -P ALL 1 1 | tail -n +4"), **subprocess_opts).stdout.read_until_close()).decode('utf-8').strip().split('\n')
+    cpu_info = (await process.Subprocess(os.path.join(conf.BASE_DIR, "./mpstat/mpstat -P ALL 1 1 | tail -n +4"), **SUBPROCESS_OPTS).stdout.read_until_close()).decode('utf-8').strip().split('\n')
 
     cpu_info = extract_cpu_info(cpu_info)
 

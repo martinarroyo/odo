@@ -20,12 +20,16 @@ open_ws = set()
 data_json = ""
 
 async def process_data():
+    """
+    Retrieves data and stores it as a JSON-formatted string
+    """
     global data_json
     data_dict = await get_data()
     data_json = json.dumps(data_dict)
 
 class CallbackHandler():
-    callback_fn = None
+    def __init__(self):
+        self.callback_fn = None
 
     def start_callback(self):
         if self.callback_fn is None:
@@ -50,7 +54,7 @@ class WebSocketIndexHandler(websocket.WebSocketHandler):
         open_ws.add(self)
         self.callback = PeriodicCallback(self.send_data, 1000)
         self.callback.start()
-    
+
     def send_data(self):
         self.write_message(data_json)
 
@@ -59,7 +63,7 @@ class WebSocketIndexHandler(websocket.WebSocketHandler):
         open_ws.remove(self)
 
 routes = [
-     (r'/ws/monitor', WebSocketIndexHandler),
+    (r'/ws/monitor', WebSocketIndexHandler),
 ]
 
 callback_handler = CallbackHandler()
@@ -85,4 +89,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-
