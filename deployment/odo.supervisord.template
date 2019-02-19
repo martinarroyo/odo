@@ -1,0 +1,10 @@
+[program:monitor]
+command = <path_to_odo>/deployment/start_odo.sh
+process_name = odo
+numprocs = 1
+user = <your_user>
+stdout = <path_to_your_logs>
+redirect_stderr = true
+environment=LANG=en_US.UTF-8,LC_ALL=en_US.UTF-8
+stopasgroup = true
+stopsignal=INT
