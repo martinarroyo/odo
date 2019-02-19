@@ -62,7 +62,7 @@ async def get_data():
     memory = {}
 
     memory_data = (await process.Subprocess("egrep --color '^(MemTotal|MemFree|Buffers|Cached|SwapTotal|SwapFree)' /proc/meminfo | egrep '[a-zA-Z]+:(\ )+[0-9.]+' -o",
-                    **subprocess_opts).stdout.read_until_close()).decode('utf-8').strip().split('\n')
+                    **subprocess_opts).stdout.read_until_close()).decode('utf-8').strip()
 
     memory_data = [e.split(":") for e in memory_data.split("\n")]
 
