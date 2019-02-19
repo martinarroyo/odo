@@ -11,8 +11,7 @@ function generateWSAddress(): string{
     }else{
         protocol = 'ws:';
     }
-    return 'ws://localhost:9000/ws/monitor'
-    //return `${protocol}//${location.hostname}:${location.port}/ws/monitor`;
+    return `${protocol}//${location.hostname}:${location.port}/ws/monitor`;
 }
 
 function parseMonitorMessage(data: string) : MonitorMessage{
