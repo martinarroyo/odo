@@ -1,4 +1,4 @@
-[program:monitor]
+[program:odo]
 command = <path_to_odo>/deployment/start_odo.sh
 process_name = odo
 numprocs = 1

@@ -32,3 +32,21 @@ The frontend is compiled with Webpack. Fortunately, here we can use Docker.
 cd frontend
 docker-compose build
 ```
+
+## Running
+
+### Frontend
+
+Simply start the docker container:
+
+```bash
+docker-compose up -d
+```
+
+### Backend
+
+Simply start `app.py`. A template for [supervisord](http://supervisord.org/) is provided in `deployment/`.
+
+### Proxy
+
+A proxy is required to create a single point of entry for frontend and backend. You can use the nginx template in `deployment/` for reference.
