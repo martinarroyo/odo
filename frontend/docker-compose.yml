@@ -3,5 +3,4 @@ services:
     frontend:
         build: .
         ports:
-            - "5000:80"
-
+            - "127.0.0.1:8008:80"
