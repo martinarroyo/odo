@@ -1,13 +1,6 @@
-FROM nginx:1.14
+FROM nginx:mainline-alpine3.18-slim
 
-RUN apt update && apt upgrade -y
-RUN apt install -y curl gnupg apt-transport-https
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-
-RUN apt update && apt install -y yarn
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
-RUN apt install -y nodejs
+RUN apk add nodejs npm yarn
 
 RUN mkdir frontend
 WORKDIR frontend

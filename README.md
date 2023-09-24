@@ -6,12 +6,16 @@ It uses a websocket connection to the frontend, which is a vanilla JS applicatio
 
 ## Installation
 
+## System-wide packages
+
+You might need to install `net-tools` on some systems.
+
 ### Backend
 
 The backend is a simple Tornado application. Due to the nature of the project, I could not find a proper way to run it on Docker. We'll use a virtual environment instead.
 
 ```bash
-virtualenv -p python3.6 env
+virtualenv -p python3.8 env
 source env/bin/activate
 pip install -r requirements.txt
 
